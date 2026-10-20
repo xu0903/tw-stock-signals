@@ -1,0 +1,53 @@
+# 每個交易日 14:40（台北）抓資料、算訊號、發布到 GitHub Pages。
+# 沒有新交易日（休市）就跳過；資料嚴重不足時這一步會失敗，網頁保留昨天的版本，GitHub 會寄信通知。
+name: Daily signals
+
+on:
+  schedule:
+    - cron: "40 6 * * 1-5"   # UTC 06:40 = 台北 14:40
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.build.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python tests.py
+      - id: build
+        env:
+          PYTHONIOENCODING: utf-8
+        # 排程才檢查「有沒有新交易日」；手動執行或改了程式就一律重建
+        run: python build_site.py --prev https://xu0903.github.io/tw-stock-signals/signals.json ${{ github.event_name != 'schedule' && '--force' || '' }}
+      - if: steps.build.outputs.skip != 'true'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
