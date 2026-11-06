@@ -1,3 +1,5 @@
 __pycache__/
 data/
 site/
+*.local.sql
+node_modules/

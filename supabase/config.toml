@@ -1,0 +1,10 @@
+# 只用來部署 Edge Functions（資料庫與其他設定沿用 LifeMaster 的 Supabase 專案）。
+# 排程呼叫的函式用 x-cron-secret 驗證，不需要 JWT。
+[functions.sim-match]
+verify_jwt = false
+
+[functions.sim-settle]
+verify_jwt = false
+
+[functions.sim-refdata]
+verify_jwt = false
