@@ -26,7 +26,22 @@ npm test                                   # JS 規則與流程（repo 根目錄
 sh supabase/sql/tests/run_local.sh         # 本機 PostgreSQL：模擬 Supabase 角色後跑 sim_test.sql
 ```
 
-## 部署步驟
+## 自動部署（建議）
+
+`.github/workflows/deploy-sim.yml` 在合併到 main（改到 `supabase/`）時自動執行，也可以在 Actions → Deploy paper trading → Run workflow 手動跑。
+它用 Supabase Management API 完成：執行 SQL 01→02→測試→03、Data API 開放 `sim` schema、登入 Redirect URL 加上網站、
+部署 5 個 Edge Functions、設定管理員並開戶、觸發一次參考資料更新。每日建置（`daily.yml`）會自動把 anon key 寫進 `web/sim-config.js`。
+
+只要設定 repo secrets（Settings → Secrets and variables → Actions → New repository secret）：
+
+| Secret | 必填 | 值 |
+|---|---|---|
+| `SUPABASE_ACCESS_TOKEN` | 是 | supabase.com/dashboard/account/tokens → Generate new token |
+| `SIM_ADMIN_EMAIL` | 否 | 你在模擬交易頁註冊用的 email；註冊完重跑 workflow 就會變成管理員並拿到 100,000 元 |
+
+本機也能跑同一支腳本：`SUPABASE_ACCESS_TOKEN=... python supabase/deploy.py sql schema auth admin refdata`。
+
+## 手動部署步驟（不用 Actions 時）
 
 1. **SQL**：Dashboard → SQL Editor 依序貼上執行 `01_sim_schema.sql`、`02_sim_ledger.sql`、`tests/sim_test.sql`（要看到 `ALL PASS`）、`03_sim_cron.sql`。
 2. **開放 schema**：Dashboard → Project Settings → Data API → Exposed schemas 加上 `sim`（前端與 Edge Function 都靠 PostgREST 讀寫）。
@@ -47,7 +62,7 @@ sh supabase/sql/tests/run_local.sh         # 本機 PostgreSQL：模擬 Supabase
    insert into sim.invites (code) values ('ADMIN001');
    ```
    然後在網站「模擬交易」頁登入，輸入邀請碼 `ADMIN001`。
-7. **前端設定**：`web/sim-config.js` 填入 anon key（和 LifeMaster `.env` 的 `VITE_SUPABASE_ANON_KEY` 相同，本來就是公開值）。
+7. **前端設定**：`web/sim-config.js` 填入 anon key（和 LifeMaster `.env` 的 `VITE_SUPABASE_ANON_KEY` 相同，本來就是公開值）；有設 `SUPABASE_ACCESS_TOKEN` 的話每日建置會自動填。
 
 ## 待驗證（還沒連到真實資料測過）
 

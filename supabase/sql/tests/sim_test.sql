@@ -55,7 +55,7 @@ begin
   if (select cash from sim.accounts where id = (select id from t_acc where who = 'b')) <> 105000 then raise exception 'deposit: cash'; end if;
   v_code := sim.admin_create_invite();
   if v_code !~ '^[A-Z2-9]{8}$' then raise exception 'invite: format %', v_code; end if;
-  if (select count(*) from sim.admin_list_accounts()) <> 2 then raise exception 'admin_list_accounts'; end if;
+  if (select count(*) from sim.admin_list_accounts() l join t_acc t on t.id = l.account_id) <> 2 then raise exception 'admin_list_accounts'; end if;
   raise notice 'pass test_admin_only_deposit';
 end $$;
 
@@ -185,15 +185,15 @@ end $$;
 do $$
 declare b uuid := (select id from t_acc where who = 'b'); c0 bigint;
 begin
-  insert into sim.positions values (b, '2412', 3000, 360000);
-  insert into sim.corp_actions (symbol, ex_date, cash_per_share, stock_per_share, pay_date) values ('2412', '2026-12-16', 7, 0, '2027-01-15');
+  insert into sim.positions values (b, 'T9999', 3000, 360000);
+  insert into sim.corp_actions (symbol, ex_date, cash_per_share, stock_per_share, pay_date) values ('T9999', '2026-12-16', 7, 0, '2027-01-15');
   if sim.snapshot_entitlements('2026-12-16') <> 1 then raise exception 'ent: snapshot'; end if;
   if sim.snapshot_entitlements('2026-12-16') <> 0 then raise exception 'ent: snapshot twice'; end if;
   select cash into c0 from sim.accounts where id = b;
-  if not sim.pay_entitlement(b, '2412', '2026-12-16', 21000, 443, 7, 5, '{"pay_date_estimated":true}') then raise exception 'ent: pay'; end if;
-  if sim.pay_entitlement(b, '2412', '2026-12-16', 21000, 443, 7, 5, '{}') then raise exception 'ent: paid twice'; end if;
+  if not sim.pay_entitlement(b, 'T9999', '2026-12-16', 21000, 443, 7, 5, '{"pay_date_estimated":true}') then raise exception 'ent: pay'; end if;
+  if sim.pay_entitlement(b, 'T9999', '2026-12-16', 21000, 443, 7, 5, '{}') then raise exception 'ent: paid twice'; end if;
   if (select cash from sim.accounts where id = b) <> c0 + 21000 - 443 + 5 then raise exception 'ent: cash'; end if;
-  if (select qty from sim.positions where account_id = b and symbol = '2412') <> 3007 then raise exception 'ent: shares'; end if;
+  if (select qty from sim.positions where account_id = b and symbol = 'T9999') <> 3007 then raise exception 'ent: shares'; end if;
   raise notice 'pass test_entitlements';
 end $$;
 
