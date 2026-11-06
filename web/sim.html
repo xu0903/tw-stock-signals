@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="模擬交易">
+<meta name="theme-color" content="#0f172a">
+<title>模擬交易</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" id="appicon" href="icon-globe2-180.png">
+<script>try{var i=localStorage.getItem('icon');if(/^(globe2|bronze|run|bull|gold|globe|line)$/.test(i))document.getElementById('appicon').href='icon-'+i+'-180.png'}catch(e){}</script>
+<link rel="stylesheet" href="sim.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="row">
+    <a href="index.html" class="back" aria-label="回台股訊號">‹ 訊號</a>
+    <h1>模擬交易</h1>
+    <span class="sp"></span>
+    <a href="#settings" class="hlink" id="nav-settings">設定</a>
+  </header>
+  <main id="main"><div class="empty">載入中…</div></main>
+</div>
+<nav class="tabs" id="tabs" hidden>
+  <a href="#home" data-r="home">總覽</a>
+  <a href="#order" data-r="order">下單</a>
+  <a href="#orders" data-r="orders">委託</a>
+  <a href="#positions" data-r="positions">持股</a>
+  <a href="#ledger" data-r="ledger">對帳單</a>
+</nav>
+<div class="toast" id="toast"></div>
+<script type="module" src="sim.js"></script>
+</body>
+</html>

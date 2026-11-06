@@ -76,6 +76,8 @@ svg text{fill:var(--sub);font-size:10px}
 .legend b{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:4px}
 details summary{cursor:pointer;color:var(--sub);font-size:13.5px}
 footer{color:var(--sub);font-size:12.5px;margin-top:20px}
+.simlink{color:var(--accent);text-decoration:none;font-size:14px;font-weight:600;margin-top:8px}
+.simbtn{display:block;text-align:center;background:var(--accent);color:var(--card);border-radius:12px;padding:11px;font-weight:600;text-decoration:none;margin:12px 0}
 .icons{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
 .icons button{border:2px solid transparent;border-radius:16px;padding:2px;background:none;cursor:pointer}
 .icons button.on{border-color:var(--accent)}
@@ -85,7 +87,7 @@ footer{color:var(--sub);font-size:12.5px;margin-top:20px}
 <body>
 <div class="wrap">
   <header>
-    <h1>台股訊號</h1>
+    <div class="row"><h1>台股訊號</h1><span class="sp"></span><a class="simlink" href="sim.html">模擬交易 ›</a></div>
     <div class="meta" id="meta">載入中…</div>
   </header>
   <div id="market"></div>
@@ -238,6 +240,7 @@ function openDetail(code) {
     <div class="row"><div><h2>${esc(s.name)} <span class="code">${code === -1 ? '' : s.code}</span></h2><div class="sub">${s.industry || '大盤'} · 資料截至 ${s.asof || D.asof}</div></div><div class="sp"></div><button class="close" onclick="closeDetail()" aria-label="關閉">×</button></div>
     <div class="row" style="margin-top:10px"><span class="num" style="font-size:24px;font-weight:600">${fmt(s.close)}</span><span class="num ${cls(s.chg)}">${sgn(s.chg)}</span><span class="sp"></span>${badge(s.advice)}</div>
     ${notes}
+    ${code === -1 ? '' : `<a class="simbtn" href="sim.html#order/${s.code}">模擬下單</a>`}
     <div class="card">${chart(s.chart)}</div>
     <div class="card"><h3>波段訊號</h3><div>${swingText(s)}</div></div>
     <div class="card"><h3>長期位置：${lt.level || '—'}</h3>
