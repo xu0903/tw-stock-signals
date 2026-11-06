@@ -1,0 +1,8 @@
+{
+  "name": "tw-stock-signals-sim",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"supabase/functions/_shared/*.test.js\""
+  }
+}
