@@ -39,6 +39,7 @@ sh supabase/sql/tests/run_local.sh         # 本機 PostgreSQL：模擬 Supabase
 |---|---|---|
 | `SUPABASE_ACCESS_TOKEN` | 是 | supabase.com/dashboard/account/tokens → Generate new token |
 | `SIM_ADMIN_EMAIL` | 否 | 管理員的 email。這個帳號要先存在（在模擬交易頁註冊過，或 LifeMaster 用 email 登入過）；重跑 workflow 會把它標成已確認、設成管理員並開戶 100,000 元 |
+| `SIM_ADMIN_PASSWORD` | 否 | 忘記管理員密碼時用（重設信寄不到）：填新密碼（至少 8 個字）後重跑 workflow，登入成功後把這個 secret 刪掉 |
 
 本機也能跑同一支腳本：`SUPABASE_ACCESS_TOKEN=... python supabase/deploy.py sql schema auth admin refdata`。
 

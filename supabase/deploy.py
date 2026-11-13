@@ -5,7 +5,8 @@
   sql        依序執行 01、02、tests/sim_test.sql（失敗就中止）、03
   schema     Data API 開放 sim schema
   auth       登入 Redirect URLs 加上網站網址
-  admin      SIM_ADMIN_EMAIL 有設、且那個 email 已經註冊 → 設成管理員並開戶
+  admin      SIM_ADMIN_EMAIL 有設、且那個 email 已經註冊 → 設成管理員並開戶；
+             另外有設 SIM_ADMIN_PASSWORD 的話，把這個帳號的密碼設成它
   refdata    觸發一次參考資料更新（股票清單、休市日、除權息）
   anon-key   把 anon key 寫進 web/sim-config.js（建置網站時用，不會 commit）
 
@@ -106,6 +107,15 @@ def step_admin():
       select count(*) as n from sim.members m join auth.users u on u.id = m.user_id
       where lower(u.email) = {sql_literal(email)} and m.is_admin;""")
     ok = bool(rows) and int(rows[-1].get("n", 0)) > 0
+    # 內建寄信收不到重設密碼信：有設 SIM_ADMIN_PASSWORD 就直接把管理員密碼設成它（設完可以刪掉這個 secret）
+    pw = os.environ.get("SIM_ADMIN_PASSWORD") or ""
+    if ok and pw:
+        if len(pw) < 8:
+            print("[admin] SIM_ADMIN_PASSWORD 至少要 8 個字，沒有更改密碼")
+        else:
+            query(f"""update auth.users set encrypted_password = extensions.crypt({sql_literal(pw)}, extensions.gen_salt('bf', 10)), updated_at = now()
+                      where lower(email) = {sql_literal(email)} and not coalesce(is_anonymous, false);""")
+            print("[admin] 已把管理員密碼設成 SIM_ADMIN_PASSWORD")
     print("[admin] 已設成管理員並開戶" if ok else "[admin] 這個 email 還沒在模擬交易頁註冊；註冊後重跑這個 workflow 即可")
 
 

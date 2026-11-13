@@ -18,6 +18,7 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SIM_ADMIN_EMAIL: ${{ secrets.SIM_ADMIN_EMAIL }}
+      SIM_ADMIN_PASSWORD: ${{ secrets.SIM_ADMIN_PASSWORD }}
       PROJECT_REF: cvpcgqgpwelokwqltktd
     steps:
       - uses: actions/checkout@v5
