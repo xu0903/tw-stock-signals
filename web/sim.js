@@ -40,9 +40,11 @@ async function realApi() {
   return {
     async user() { const { data } = await sb.auth.getUser(); return data.user && !data.user.is_anonymous ? data.user : null },
     async signIn(email, password) { must(await sb.auth.signInWithPassword({ email, password })) },
-    async signUp(email, password) {
-      const d = must(await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.href.split('#')[0] } }))
-      return !d.session
+    // 用邀請碼註冊（不寄驗證信），接著登入並開戶
+    async register(email, password, code, name) {
+      await fn('sim-signup', { method: 'POST', body: JSON.stringify({ email, password, code }) })
+      must(await sb.auth.signInWithPassword({ email, password }))
+      must(await sb.rpc('redeem_invite', { p_code: code, p_name: name }))
     },
     async signOut() { await sb.auth.signOut() },
     async member(uid) { return must(await sb.from('members').select('display_name, is_admin').eq('user_id', uid).maybeSingle()) },
@@ -94,7 +96,7 @@ function demoApi() {
   }
   return {
     async user() { return { id: 'u', email: 'demo@example.com' } },
-    async signIn() {}, async signUp() { return false }, async signOut() {},
+    async signIn() {}, async register() {}, async signOut() {},
     async member() { return { display_name: '示範', is_admin: true } },
     async account() { return acc },
     async redeem() { return 'demo' },
@@ -148,14 +150,22 @@ function viewLogin() {
     <div class="sub">用假錢照真實台股規則練習：即時五檔、手續費與稅、除權息。只開放受邀的朋友。</div>
     <label for="em">Email</label><input id="em" type="email" autocomplete="email">
     <label for="pw">密碼</label><input id="pw" type="password" autocomplete="current-password">
-    <button class="btn block" id="in">登入</button>
-    <button class="btn block ghost" id="up">註冊新帳號</button></div>`
-  const go = (fn) => async () => {
-    try { const needConfirm = await fn($('#em').value.trim(), $('#pw').value); if (needConfirm) toast('請到信箱點確認連結，再回來登入'); else route() }
-    catch (e) { toast(e.message) }
+    <button class="btn block" id="in">登入</button></div>
+    <div class="card"><h3>第一次來？用邀請碼註冊</h3>
+    <div class="sub">不用收驗證信。開戶會拿到 100,000 元模擬資金，邀請碼向管理員索取。</div>
+    <label for="rem">Email</label><input id="rem" type="email" autocomplete="email">
+    <label for="rpw">密碼（至少 8 個字）</label><input id="rpw" type="password" autocomplete="new-password">
+    <label for="rcode">邀請碼</label><input id="rcode" autocapitalize="characters" maxlength="8">
+    <label for="rnm">暱稱</label><input id="rnm" maxlength="30" placeholder="管理員看得到">
+    <button class="btn block" id="up">註冊並開戶</button></div>`
+  $('#in').onclick = async () => {
+    try { await api.signIn($('#em').value.trim(), $('#pw').value); await loadMe(); route() } catch (e) { toast(e.message) }
   }
-  $('#in').onclick = go((e, p) => api.signIn(e, p))
-  $('#up').onclick = go((e, p) => api.signUp(e, p))
+  $('#up').onclick = async () => {
+    const b = $('#up'); b.disabled = true
+    try { await api.register($('#rem').value.trim(), $('#rpw').value, $('#rcode').value.trim(), $('#rnm').value.trim()); await loadMe(); toast('開戶完成'); location.hash = '#home'; route() }
+    catch (e) { toast(e.message); b.disabled = false }
+  }
 }
 
 function viewInvite() {
