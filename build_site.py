@@ -152,6 +152,8 @@ def main() -> int:
     (out / "signals.json").write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     for f in (ROOT / "web").iterdir():
         shutil.copy(f, out / f.name)
+    # 模擬交易前端直接 import 後端同一份規則
+    shutil.copy(ROOT / "supabase" / "functions" / "_shared" / "rules.js", out / "rules.js")
     flagged = [s["code"] for s in result["stocks"] if s.get("flag")]
     print(f"[完成] 資料截至 {result['asof']}，{len(result['stocks'])} 檔；抓不到 {result['failed'] or '無'}；標記 {flagged or '無'}")
     set_output(skip="false")

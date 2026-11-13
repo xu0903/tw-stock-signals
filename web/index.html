@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-title" content="台股訊號">
 <meta name="theme-color" content="#0f172a">
 <title>台股訊號</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" id="appicon" href="icon-globe2-180.png">
+<script>try{var i=localStorage.getItem('icon');if(/^(globe2|bronze|run|bull|gold|globe|line)$/.test(i))document.getElementById('appicon').href='icon-'+i+'-180.png'}catch(e){}</script>
 <style>
 :root{
   --bg:#f4f5f7;--card:#fff;--ink:#111827;--sub:#6b7280;--line:#e5e7eb;
@@ -73,12 +76,18 @@ svg text{fill:var(--sub);font-size:10px}
 .legend b{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:4px}
 details summary{cursor:pointer;color:var(--sub);font-size:13.5px}
 footer{color:var(--sub);font-size:12.5px;margin-top:20px}
+.simlink{color:var(--accent);text-decoration:none;font-size:14px;font-weight:600;margin-top:8px}
+.simbtn{display:block;text-align:center;background:var(--accent);color:var(--card);border-radius:12px;padding:11px;font-weight:600;text-decoration:none;margin:12px 0}
+.icons{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+.icons button{border:2px solid transparent;border-radius:16px;padding:2px;background:none;cursor:pointer}
+.icons button.on{border-color:var(--accent)}
+.icons img{display:block;width:56px;height:56px;border-radius:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>台股訊號</h1>
+    <div class="row"><h1>台股訊號</h1><span class="sp"></span><a class="simlink" href="sim.html">模擬交易 ›</a></div>
     <div class="meta" id="meta">載入中…</div>
   </header>
   <div id="market"></div>
@@ -97,6 +106,10 @@ footer{color:var(--sub);font-size:12.5px;margin-top:20px}
   <footer>
     <p><b>這是規則訊號，不是投資建議。</b>每檔都用同一套規則：波段看 60 日均線 ±5%、連續 3 天確認；長期看股價離 240 日均線的距離，在自己過去 5 年排第幾百分位（&lt;20 偏便宜、&gt;80 偏貴）。成績單是 2022 年起照規則買賣 vs 一直持有，已扣手續費、證交稅與滑價，不含股息稅與補充保費。</p>
     <p id="foot"></p>
+    <details><summary>App 圖示</summary>
+      <div class="icons" id="icons"></div>
+      <div>選好之後，把主畫面上舊的「台股訊號」刪掉，再用 Safari 分享 → 加入主畫面，新圖示才會出現。</div>
+    </details>
   </footer>
 </div>
 <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
@@ -227,6 +240,7 @@ function openDetail(code) {
     <div class="row"><div><h2>${esc(s.name)} <span class="code">${code === -1 ? '' : s.code}</span></h2><div class="sub">${s.industry || '大盤'} · 資料截至 ${s.asof || D.asof}</div></div><div class="sp"></div><button class="close" onclick="closeDetail()" aria-label="關閉">×</button></div>
     <div class="row" style="margin-top:10px"><span class="num" style="font-size:24px;font-weight:600">${fmt(s.close)}</span><span class="num ${cls(s.chg)}">${sgn(s.chg)}</span><span class="sp"></span>${badge(s.advice)}</div>
     ${notes}
+    ${code === -1 ? '' : `<a class="simbtn" href="sim.html#order/${s.code}">模擬下單</a>`}
     <div class="card">${chart(s.chart)}</div>
     <div class="card"><h3>波段訊號</h3><div>${swingText(s)}</div></div>
     <div class="card"><h3>長期位置：${lt.level || '—'}</h3>
@@ -241,6 +255,18 @@ const badge2 = v => `<span class="badge ${v === '有幫助' ? 'b-go' : v === '�
 function closeDetail() { $('#sheet').classList.remove('open') }
 $('#sheet').onclick = e => { if (e.target.id === 'sheet') closeDetail() };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail() });
+const ICONS = [['globe2', '地球箭頭（預設）'], ['bronze', '銅色牛'], ['run', '奔牛'], ['bull', '黑牛'], ['gold', '金色長條'], ['globe', '地球'], ['line', '折線']];
+function renderIcons() {
+  let cur = 'bull';
+  try { cur = localStorage.getItem('icon') || 'globe2' } catch (e) {}
+  $('#icons').innerHTML = ICONS.map(([k, n]) => `<button class="${k === cur ? 'on' : ''}" data-k="${k}" aria-label="${n}" title="${n}"><img src="icon-${k}-180.png" alt="${n}"></button>`).join('');
+  document.querySelectorAll('#icons button').forEach(b => b.onclick = () => {
+    try { localStorage.setItem('icon', b.dataset.k) } catch (e) {}
+    $('#appicon').href = `icon-${b.dataset.k}-180.png`;
+    renderIcons();
+  });
+}
+renderIcons();
 $('#q').oninput = renderList;
 $('#sort').onchange = renderList;
 

@@ -31,6 +31,12 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python tests.py
+      - run: npm test   # 模擬交易的規則與流程
+      - name: Fill Supabase anon key for the paper-trading page
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        # 沒設 secret 就跳過，模擬交易頁會顯示「還沒設定」；抓不到也不擋住每日訊號
+        run: if [ -n "$SUPABASE_ACCESS_TOKEN" ]; then python3 supabase/deploy.py anon-key || echo "::warning::抓不到 anon key"; fi
       - id: build
         env:
           PYTHONIOENCODING: utf-8
