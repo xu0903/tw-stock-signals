@@ -33,6 +33,6 @@ jobs:
         with:
           version: latest
       - name: Edge Functions
-        run: supabase functions deploy sim-order sim-admin sim-match sim-settle sim-refdata --project-ref "$PROJECT_REF" --use-api
+        run: supabase functions deploy sim-order sim-admin sim-match sim-settle sim-refdata --project-ref "$PROJECT_REF" --use-api --yes
       - name: Admin account and reference data
         run: python3 supabase/deploy.py admin refdata
