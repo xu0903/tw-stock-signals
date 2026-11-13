@@ -66,3 +66,4 @@ details summary::-webkit-details-marker{display:none}
 .toast{position:fixed;left:16px;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;background:var(--ink);color:var(--card);border-radius:12px;padding:10px 14px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
 .toast.show{opacity:1}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs[hidden]{display:none}

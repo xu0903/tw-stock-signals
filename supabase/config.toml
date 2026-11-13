@@ -8,3 +8,7 @@ verify_jwt = false
 
 [functions.sim-refdata]
 verify_jwt = false
+
+# 註冊時還沒有登入，靠邀請碼驗證
+[functions.sim-signup]
+verify_jwt = false

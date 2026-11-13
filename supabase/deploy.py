@@ -94,6 +94,8 @@ def step_admin():
       begin
         select id into v_uid from auth.users where lower(email) = {sql_literal(email)} and not coalesce(is_anonymous, false);
         if v_uid is null then return; end if;
+        -- 管理員自己指定的 email：內建寄信可能收不到，直接標成已確認
+        update auth.users set email_confirmed_at = coalesce(email_confirmed_at, now()) where id = v_uid;
         insert into sim.members (user_id, display_name, is_admin) values (v_uid, '管理員', true)
         on conflict (user_id) do update set is_admin = true;
         if not exists (select 1 from sim.accounts where user_id = v_uid and kind = 'normal') then

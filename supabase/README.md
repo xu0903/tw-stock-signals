@@ -11,6 +11,7 @@
 | `functions/_shared/db.ts` | Supabase 連線與 `Db` 介面實作 |
 | `functions/sim-order` | 下單（POST）、即時五檔（GET `?quote=2330&session=lot`） |
 | `functions/sim-admin` | 管理員入金、發邀請碼、列出帳戶 |
+| `functions/sim-signup` | 用邀請碼註冊（不寄驗證信；Supabase 內建寄信只寄給專案成員） |
 | `functions/sim-match` | 交易時段每分鐘撮合掛著的限價單（每次 6 輪、間隔 10 秒） |
 | `functions/sim-settle` | 收盤結算：盤後零股、過期、除權息資格、發放股利 |
 | `functions/sim-refdata` | 每天更新股票清單、休市日、除權息 |
@@ -37,7 +38,7 @@ sh supabase/sql/tests/run_local.sh         # 本機 PostgreSQL：模擬 Supabase
 | Secret | 必填 | 值 |
 |---|---|---|
 | `SUPABASE_ACCESS_TOKEN` | 是 | supabase.com/dashboard/account/tokens → Generate new token |
-| `SIM_ADMIN_EMAIL` | 否 | 你在模擬交易頁註冊用的 email；註冊完重跑 workflow 就會變成管理員並拿到 100,000 元 |
+| `SIM_ADMIN_EMAIL` | 否 | 管理員的 email。這個帳號要先存在（在模擬交易頁註冊過，或 LifeMaster 用 email 登入過）；重跑 workflow 會把它標成已確認、設成管理員並開戶 100,000 元 |
 
 本機也能跑同一支腳本：`SUPABASE_ACCESS_TOKEN=... python supabase/deploy.py sql schema auth admin refdata`。
 
